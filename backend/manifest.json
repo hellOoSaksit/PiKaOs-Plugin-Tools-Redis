@@ -1,0 +1,14 @@
+{
+  "id": "redis",
+  "name": "Redis (tool)",
+  "version": "0.1.0",
+  "coreVersion": "^0.1.0",
+  "kind": "tool",
+  "provides": ["redis.Connection", "redis.Queue"],
+  "consumes": [],
+  "dependencies": [],
+  "permissions": [],
+  "routes": [],
+  "secrets": ["redis_url"],
+  "compose": "compose.fragment.yml"
+}

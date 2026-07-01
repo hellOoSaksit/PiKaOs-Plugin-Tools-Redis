@@ -1,0 +1,21 @@
+# Sidecar fragment for the redis tool plugin. Merged into the generated compose when enabled.
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    env_file:
+      - ../Backend/.env         # REDIS_PASSWORD (empty = no auth; the image ignores the rest)
+    # Enable --requirepass only when REDIS_PASSWORD is set. $$ → compose passes a literal $, the
+    # container shell does the ${VAR:+...} expansion at runtime.
+    command: ["sh", "-c", "redis-server $${REDIS_PASSWORD:+--requirepass \"$$REDIS_PASSWORD\"}"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli $${REDIS_PASSWORD:+--no-auth-warning -a \"$$REDIS_PASSWORD\"} ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  redisdata:
