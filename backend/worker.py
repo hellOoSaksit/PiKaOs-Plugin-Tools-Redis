@@ -18,7 +18,6 @@ from arq.connections import RedisSettings
 from ... import modules, plugin_loader
 from ...core.config import settings
 from ...core.container import Container
-from ...core.db import SessionLocal
 from ...core.events import EventBus
 from ...core.logging_ctx import configure_worker_logging
 
@@ -42,7 +41,6 @@ async def startup(ctx) -> None:
     enabled = modules.enabled_optional_modules()
     result = plugin_loader.register_plugins(enabled, modules.PLUGIN_MANIFESTS,
                                             plugin_loader.PluginContext(container=container, events=bus,
-                                                                        session_factory=SessionLocal,
                                                                         settings=settings))
     if result.degraded:  # §8 — a plugin whose register/boot raised; the worker stays up
         log.warning("plugins degraded (lifecycle failed, others unaffected): %s", result.degraded)
@@ -60,7 +58,6 @@ async def shutdown(ctx) -> None:
     enabled = modules.enabled_optional_modules()
     errors = plugin_loader.shutdown_plugins(enabled, modules.PLUGIN_MANIFESTS,
                                             plugin_loader.PluginContext(container=container, events=bus,
-                                                                        session_factory=SessionLocal,
                                                                         settings=settings))
     if errors:
         log.warning("plugin shutdown errors (ignored): %s", errors)
