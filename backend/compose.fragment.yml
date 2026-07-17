@@ -8,8 +8,11 @@ services:
     # Enable --requirepass only when REDIS_PASSWORD is set. $$ → compose passes a literal $, the
     # container shell does the ${VAR:+...} expansion at runtime.
     command: ["sh", "-c", "redis-server $${REDIS_PASSWORD:+--requirepass \"$$REDIS_PASSWORD\"}"]
-    ports:
-      - "6379:6379"
+    # internal-by-default (Fix-KIT-07): the backend reaches this over the compose network as
+    # `redis:6379` — no host port is published. Matters more here than for the other sidecars: the
+    # command above leaves auth OFF when REDIS_PASSWORD is empty, so a published port would put an
+    # unauthenticated Redis on the host. Dev host access → add a port from the registry
+    # (PiKaOs-Docs/docs/architecture/ports.md), never hardcode one here.
     volumes:
       - redisdata:/data
     healthcheck:
